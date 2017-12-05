@@ -1,0 +1,42 @@
+
+
+.article_region .article_con{
+    margin-left: 20px;
+}
+
+
+.updown .diggit{
+    width: 46px;
+    height: 52px;
+    background: url("/static/image/upup.gif") no-repeat;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 2px;
+    padding-top: 5px;
+}
+
+.updown .buryit{
+    margin-left: 20px;
+    width: 46px;
+    height: 52px;
+    background: url('/static/image/downdown.gif') no-repeat;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 2px;
+    padding-top: 5px;
+}
+
+.subComment_region .tbCommentAuthor{
+        background-position: 3px -3px;
+        background-image: url('/static/image/icon_form.gif');
+        background-repeat: no-repeat;
+        border: 1px solid #ccc;
+        padding: 4px 4px 4px 30px;
+        width: 300px;
+        font-size: 13px;
+}
+
+.comment{
+    margin-left: 20px;
+}
+

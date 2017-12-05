@@ -1,0 +1,27 @@
+#cate_title_block{
+    border: 1px solid cornflowerblue;
+}
+#link_cate{
+    margin-top: 25px;
+    border: 1px solid orange;
+}
+#user_stats{
+    margin-top: 25px;
+    border: 1px solid green;
+}
+
+.panel-collapse ul{
+    list-style: none;
+}
+.users_action {
+    font-size: 12px;
+}
+.m1-top{
+    margin-top: 12px;
+}
+#sidebar .title-top{
+    margin-top: 40px;
+}
+.hides{
+    display: none;
+}

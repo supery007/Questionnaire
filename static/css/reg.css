@@ -1,0 +1,29 @@
+/*.navbar {*/
+    /*background-color: #2e6da4;*/
+/*}*/
+#tel_left{
+    width: 13%;
+    float: left;
+}
+#tel{
+    width: 85%;
+    float: right;
+
+}
+
+.avatar{
+    position: relative;
+    width: 65px;
+    height: 65px;
+}
+
+#avatar_file,#avatar_img{
+    position: absolute;
+    top:0;
+    left: 140px;
+    width: 65px;
+    height: 65px;
+}
+#avatar_file{
+    opacity:0;
+}

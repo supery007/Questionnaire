@@ -125,8 +125,26 @@ def index(request):
     return render(request,'index.html',{'cls_list':cls_list,'questionnaire_list':questionnaire_list,'userinfo':userinfo})
 
 def addquestionnaire(request):
-    return HttpResponse('...')
+    response_dict={'add_msg':False}
+    if request.is_ajax():
+        title=request.POST.get('title')
+        select_val = request.POST.get('select_val')
+        user_id=request.session.get('userID')
+        questionnaire_obj=models.Questionnaire.objects.create(title=title,cls_id=select_val,creator_id=user_id)
+
+        if questionnaire_obj:
+            response_dict['add_msg']=True
+    return HttpResponse(json.dumps(response_dict))
 
 
 def editquestion(request):
     return HttpResponse('...')
+
+def delquestion(request):
+    response_dict = {'del_msg': False}
+    if request.is_ajax():
+        qs_id=request.POST.get('qs_id')
+        models.Questionnaire.objects.filter(id=qs_id).delete()
+        response_dict['del_msg']=True
+
+    return HttpResponse(json.dumps(response_dict))

@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^index/', views.index),
     url(r'^addqs/', views.addquestionnaire),
     url(r'^editqs/', views.editquestion),
+    url(r'^delqs/', views.delquestion),
 
 
     # 滑动验证码

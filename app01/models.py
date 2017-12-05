@@ -48,10 +48,10 @@ class Questionnaire(models.Model):
     问卷表
     """
     title = models.CharField(max_length=64)
-    cls = models.ForeignKey(to=ClassList)
+    cls = models.ForeignKey(to=ClassList,verbose_name='所调查问卷班级')
     creator = models.ForeignKey(to='UserInfo',verbose_name='创建人')
 
-    question = models.ForeignKey(to='Question', verbose_name='问题内容')
+    question = models.ForeignKey(to='Question', verbose_name='问题内容',null=True)
 
     class Meta:
         verbose_name_plural = '问卷调查表'

@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^logoff/', views.logoff),
     url(r'^$', views.index),
     url(r'^index/', views.index),
+    url(r'^question/(\d+)/$', views.question),
     url(r'^addqs/', views.addquestionnaire),
     url(r'^editqs/', views.editquestion),
     url(r'^delqs/', views.delquestion),

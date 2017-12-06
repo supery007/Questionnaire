@@ -31,7 +31,6 @@ class RegForm(forms.Form):
         },
         widget=widgets.TextInput(
             attrs={'placeholder': "登录用户名，不少于4个字符", 'class': "form-control"}),
-
     )
     nickname = forms.CharField(
         min_length=2,

@@ -1,0 +1,103 @@
+{% extends 'index.html' %}
+{% block title %}
+    编辑问卷问题
+{% endblock %}
+{% block link %}
+    <link rel="stylesheet" href="/static/css/addQuestion.css">
+{% endblock %}
+{% block Content %}
+
+    <div class="panel ">
+        <div class="panel-body">
+            <div class="pull-right">
+                <button type="button" class="btn btn-success" id="addQuestion">添加</button>
+                <button type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-body" id="Questions">
+            <form class="form-horizontal">
+                {% for que in que_list %}
+                    <div class="well well-lg">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                                onclick="functiondel(this)">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 style="color:#777">问题{{ forloop.counter }}：</h4>
+                        <div class="form-group">
+                            <label for="inputPassword" class="col-sm-2 col-md-2 control-label">问题：</label>
+                            <div class="col-md-3">
+                                <textarea name="" id="" cols="5" rows="2" class="form-control"
+                                          style="width: 600px">{{ que.caption }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword" class="col-sm-2 col-md-2 control-label">类型：</label>
+                            <div class="col-md-3">
+                                <select name="type_id" class="form-control types" style="width: 250px"
+                                        onchange="selectchange(this)">
+                                    {% for type,value in types.items %}
+                                        {% if type == que.tp %}
+                                            <option value="{{ type }}" selected>{{ value }}</option>
+                                        {% else %}
+                                            <option value="{{ type }}">{{ value }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if que.tp == 2 %}
+                                <ul class="nav col-md-2 col-sm-2 addoption" >
+                                    <li role="presentation" class="active addSelect"  onclick="addSelectfunc(this)">
+                                        <a><span class="glyphicon glyphicon-plus "
+                                                 aria-hidden="true"></span>&nbsp;&nbsp;添加选项</a>
+                                    </li>
+                                </ul>
+                            {% else %}
+                                <ul class="nav col-md-2 myhite addoption">
+                                    <li role="presentation" class="active addSelect" onclick="addSelectfunc(this)">
+                                        <a><span class="glyphicon glyphicon-plus "
+                                                 aria-hidden="true"></span>&nbsp;&nbsp;添加选项</a>
+                                    </li>
+                                </ul>
+                            {% endif %}
+                        </div>
+                        {% if que.tp == 2 %}
+                            <div class="col-md-offset-2 col-sm-offset-2">
+                                <ul class="form-inline ">
+                                    {% for option in que.option_set.all %}
+                                        <li>
+                                            内容:
+                                            <input type="text" class="form-control" value="{{ option.name }}">
+                                            &nbsp; &nbsp;分值:
+                                            <input type="text" class="form-control" value="{{ option.score }}">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                                                    onclick="functiondel(this)">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% else %}
+                            <div class="col-md-offset-2 col-sm-offset-2">
+                                <ul class="form-inline " id="addop">
+
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+            </form>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="/static/js/addQuestion.js"></script>
+{% endblock %}
+

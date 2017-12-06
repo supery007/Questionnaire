@@ -148,3 +148,44 @@ def delquestion(request):
         response_dict['del_msg']=True
 
     return HttpResponse(json.dumps(response_dict))
+
+
+from django import forms
+
+from django.forms import widgets,ValidationError
+
+class QuestionForm(forms.Form):
+
+    tp = forms.CharField(
+        initial=1,
+        error_messages={
+            'required': '选项不能为默认值',
+        },
+        widget=widgets.Select(
+
+            choices=((1, '打分(1~10)'), (2, '单选'), (3, '建议')),
+            attrs={'class': "form-control",'style':"width: 250px"}),
+    )
+
+    caption = forms.CharField(
+        error_messages={
+            'required': '问题内容不能为空',
+        },
+        widget=widgets.Textarea(
+            attrs={'class': "form-control",'cols':"5",'rows':"2" ,'style':"width: 600px"}),
+    )
+
+
+# def question(request,nid):
+#     que_list=models.Question.objects.filter(questionnaire__id=nid)
+#     form = QuestionForm()
+#     return render(request,'que_list.html',{'form':form})
+
+def question(request,nid):
+    que_list=models.Question.objects.filter(naire_id=nid)
+    types={1:'打分',2:'单选',3:'建议'}
+
+    print(que_list)
+    return render(request,'que_list.html',{'que_list':que_list,'types':types})
+
+

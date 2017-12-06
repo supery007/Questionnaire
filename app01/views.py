@@ -138,7 +138,7 @@ def addquestionnaire(request):
 
 
 def editquestion(request):
-    return HttpResponse('...')
+    return render(request,'editqs.html')
 
 def delquestion(request):
     response_dict = {'del_msg': False}

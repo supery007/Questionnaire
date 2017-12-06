@@ -2,21 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CRM系统首页</title>
+    <title>{% block title %}CRM系统首页{% endblock %}</title>
     <link rel="stylesheet" href="/static/bootstrap-3.3.7/css/bootstrap.min.css">
+    {% block link %}
+    {% endblock %}
 </head>
 <body>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Brand</a>
+            <a class="navbar-brand" href="/">CRM系统</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -36,7 +31,7 @@
         </div>
     </div>
 </nav>
-{% block Content %}
+
 <div class="container-fluid" style="margin-top: 70px">
 {% csrf_token %}
     <div class="row">
@@ -51,49 +46,48 @@
             </div>
         </div>
 
-        <div class="col-md-9 main">
-            <div>
-                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
-                    添加
-                </button>
-            </div>
-            <div>
-                <table class="table table-bordered ">
-                    <thead>
-                    <tr>
-                        <th><input type="checkbox"></th>
-                        <th>调查问卷名称</th>
-                        <th>问卷调查班级</th>
-                        <th>参与人数</th>
-                        <th>问卷选项</th>
-                        <th>调查地址</th>
-                        <th>查看评分</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for questionnaire in questionnaire_list %}
+            <div class="col-md-9 main">
+            {% block Content %}
+                <div>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">添加</button>
+                </div>
+                <div>
+                    <table class="table table-bordered ">
+                        <thead>
                         <tr>
-                            <td><input type="checkbox"></td>
-                            <td>{{ questionnaire.title }}</td>
-                            <td>{{ questionnaire.cls.title }}</td>
-                            <td>0/{{ questionnaire.cls.student_set.count }}</td>
-                            <td><a href="/editqs/">编辑问卷</a></td>
-                            <td>/student/evaluate/{{ questionnaire.cls.id }}/{{ questionnaire.id }}</td>
-                            <td><a href="">查看评分</a></td>
-                            <td><button class="btn btn-block btn-info del_qs"  qs_id="{{ questionnaire.id }}">删除</button></td>
+                            <th><input type="checkbox"></th>
+                            <th>调查问卷名称</th>
+                            <th>问卷调查班级</th>
+                            <th>参与人数</th>
+                            <th>问卷选项</th>
+                            <th>调查地址</th>
+                            <th>查看评分</th>
+                            <th>操作</th>
                         </tr>
-                    {% endfor %}
+                        </thead>
+                        <tbody>
+                        {% for questionnaire in questionnaire_list %}
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td>{{ questionnaire.title }}</td>
+                                <td>{{ questionnaire.cls.title }}</td>
+                                <td>0/{{ questionnaire.cls.student_set.count }}</td>
+                                <td><a href="/editqs/">编辑问卷</a></td>
+                                <td>/student/evaluate/{{ questionnaire.cls.id }}/{{ questionnaire.id }}</td>
+                                <td><a href="">查看评分</a></td>
+                                <td><button class="btn btn-block btn-info del_qs"  qs_id="{{ questionnaire.id }}">删除</button></td>
+                            </tr>
+                        {% endfor %}
 
-                    </tbody>
-                </table>
-
+                        </tbody>
+                    </table>
+                </div>
+            {% endblock %}
             </div>
 
-        </div>
     </div>
 </div>
-{% endblock %}
+
 
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
@@ -140,5 +134,7 @@
 <script src="/static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="/static/js/jquery.cookie.js"></script>
 <script src="/static/js/index.js"></script>
+{% block script %}
+{% endblock %}
 </body>
 </html>

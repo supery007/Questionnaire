@@ -14,7 +14,6 @@ $('#save').click(function () {
             select_val:$("#qs_classes option:selected").val()
        },
        success:function (data) {
-           console.log('123');
            var data=JSON.parse(data);
            console.log(data.add_msg);
            if(data.add_msg){
@@ -39,7 +38,6 @@ $(".del_qs").click(function () {
        success:function (data) {
 
            var data=JSON.parse(data);
-           console.log('456');
            if (data.del_msg){
                qs_tr.remove()
            }

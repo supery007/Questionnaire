@@ -11,22 +11,21 @@
         <div class="panel-body">
             <div class="pull-right">
                 <button type="button" class="btn btn-success" id="addQuestion">添加</button>
-                <button type="button" class="btn btn-primary" id="saveQuestion">保存</button>
+                <button type="button" class="btn btn-primary">保存</button>
             </div>
         </div>
     </div>
 
     <div class="panel">
         <div class="panel-body" id="Questions">
-
-            <ol class="form-horizontal" naire_id="{{ naire_id }}">
-            {% csrf_token %}
+            <form class="form-horizontal">
                 {% for que in que_list %}
-                    <li class="well" pid="{{ que.id }}">
+                    <div class="well well-lg">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"
                                 onclick="functiondel(this)">
                             <span aria-hidden="true">&times;</span>
                         </button>
+                        <h4 style="color:#777">问题{{ forloop.counter }}：</h4>
                         <div class="form-group">
                             <label for="inputPassword" class="col-sm-2 col-md-2 control-label">问题：</label>
                             <div class="col-md-3 col-sm-3">
@@ -49,8 +48,8 @@
                                 </select>
                             </div>
                             {% if que.tp == 2 %}
-                                <ul class="nav col-md-2 col-sm-2 addoption">
-                                    <li role="presentation" class="active addSelect" onclick="addSelectfunc(this)">
+                                <ul class="nav col-md-2 col-sm-2 addoption" >
+                                    <li role="presentation" class="active addSelect"  onclick="addSelectfunc(this)">
                                         <a><span class="glyphicon glyphicon-plus "
                                                  aria-hidden="true"></span>&nbsp;&nbsp;添加选项</a>
                                     </li>
@@ -66,11 +65,11 @@
                         </div>
                         {% if que.tp == 2 %}
                             <div class="col-md-offset-2 col-sm-offset-2">
-                                <ul class="form-inline">
+                                <ul class="form-inline ">
                                     {% for option in que.option_set.all %}
-                                        <li op_id="{{ option.id }}">
+                                        <li>
                                             内容:
-                                            <input type="text" class="form-control"  value="{{ option.name }}">
+                                            <input type="text" class="form-control" value="{{ option.name }}">
                                             &nbsp; &nbsp;分值:
                                             <input type="text" class="form-control" value="{{ option.score }}">
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"
@@ -83,15 +82,15 @@
                             </div>
                         {% else %}
                             <div class="col-md-offset-2 col-sm-offset-2">
-                                <ul class="form-inline" id="addop">
+                                <ul class="form-inline " id="addop">
 
                                 </ul>
                             </div>
                         {% endif %}
-                    </li>
+                    </div>
                 {% endfor %}
-            </ol>
 
+            </form>
         </div>
 
     </div>

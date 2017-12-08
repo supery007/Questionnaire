@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学生登录页面</title>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7/css/login.css">
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7/css/bootstrap.min.css">
+
+</head>
+<body>
+
+
+<div class="container">
+    <div class="panel panel-default col-md-4 col-sm-6 col-xs-8 col-md-offset-4 col-sm-offset-4  col-xs-offset-2">
+        <div class="panel-body">
+            <form class="form-horizontal col-sm-offset-1">
+                <div class="form-group">
+                    <div class="text-center col-sm-11">
+                        <h2><b>登&nbsp;&nbsp;录</b></h2>
+                    </div>
+                </div>
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="col-sm-11">
+                        <input type="text" class="form-control" id="username" placeholder="用户名">
+                    </div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <div class="col-sm-11">
+                        <input type="password" class="form-control" id="password" placeholder="密码">
+                    </div>
+                </div>
+                <br>
+                <div class="form-group">
+                    <div class="col-sm-11">
+                        <button type="button" class="btn btn-info btn-block" id="btn">登&nbsp;&nbsp;&nbsp;&nbsp;录
+                        </button>
+                        <span class="login_error"></span>
+                        <div id="popup-captcha"></div>
+                    </div>
+                </div>
+
+                <div class="form-group ">
+                    <div class="col-sm-11">
+                        <hr>
+                        <a href="">忘记密码</a>
+                        <a href="/reg/" class="pull-right">立即注册</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="/static/bootstrap-3.3.7/js/jquery-3.2.1.js"></script>
+<script src="/static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script src="/static/js/jquery.cookie.js"></script>
+<script src="/static/js/login.js"></script>
+
+<!-- 引入封装了failback的接口--initGeetest -->
+<script src="http://static.geetest.com/static/tools/gt.js"></script>
+
+
+</body>
+</html>

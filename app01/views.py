@@ -81,6 +81,8 @@ def logoff(request):
 
 
 '''注册账号'''
+
+
 def reg(request):
     if request.is_ajax():
 
@@ -117,45 +119,109 @@ def index(request):
     if not request.session.get('is_login'):
         return redirect('/login/')
 
-    cls_list=models.ClassList.objects.all()
-    questionnaire_list=models.Questionnaire.objects.filter(creator_id=request.session.get('userID'))
-    userinfo=models.UserInfo.objects.filter(id=request.session.get('userID')).first()
-    print('userinfo:',userinfo)
+    cls_list = models.ClassList.objects.all()
+    questionnaire_list = models.Questionnaire.objects.filter(creator_id=request.session.get('userID'))
+    userinfo = models.UserInfo.objects.filter(id=request.session.get('userID')).first()
+    print('userinfo:', userinfo)
 
-    return render(request,'index.html',{'cls_list':cls_list,'questionnaire_list':questionnaire_list,'userinfo':userinfo})
+    return render(request, 'index.html',
+                  {'cls_list': cls_list, 'questionnaire_list': questionnaire_list, 'userinfo': userinfo})
+
 
 def addquestionnaire(request):
-    response_dict={'add_msg':False}
+    response_dict = {'add_msg': False}
     if request.is_ajax():
-        title=request.POST.get('title')
+        title = request.POST.get('title')
         select_val = request.POST.get('select_val')
-        user_id=request.session.get('userID')
-        questionnaire_obj=models.Questionnaire.objects.create(title=title,cls_id=select_val,creator_id=user_id)
+        user_id = request.session.get('userID')
+        questionnaire_obj = models.Questionnaire.objects.create(title=title, cls_id=select_val, creator_id=user_id)
 
         if questionnaire_obj:
-            response_dict['add_msg']=True
+            response_dict['add_msg'] = True
     return HttpResponse(json.dumps(response_dict))
 
 
+def del_question(q_list,naire_id):
+    question_obj=models.Question.objects.filter(naire_id=naire_id)
+    question_obj_list=[]
+    submit_question_list=[]
+    for question in question_obj:
+        question_obj_list.append(question.id)
+    for q in q_list:
+        if q['pid']:
+            submit_question_list.append(int(q['pid']))
+
+    for id in question_obj_list:
+        if id not in submit_question_list:
+            models.Question.objects.filter(id=id).delete()
+
+def del_options(op_list,options_id,que):
+    options_obj=models.Option.objects.filter(qs_id=options_id)
+    options_obj_list=[]
+    submit_options_list=[]
+    for obj in options_obj:
+        options_obj_list.append(obj.id)
+    for option in op_list:
+        if not option['id']:
+            print(que)
+            models.Option.objects.create(name=option['title'],score=option['val'],qs_id=options_id)
+            models.Question.objects.filter(id=int(que['pid'])).update(caption=que['title'], tp=int(que['type']))
+        else:
+            models.Question.objects.filter(id=int(que['pid'])).update(caption=que['title'], tp=int(que['type']))
+            submit_options_list.append(int(option['id']))
+    for op_obj_id in options_obj_list:
+        if op_obj_id not in submit_options_list:
+            models.Option.objects.filter(id=op_obj_id).delete()
+
+
+
 def editquestion(request):
-    return render(request,'editqs.html')
+    if request.is_ajax():
+        q_list = json.loads(request.POST.get('plist'))
+        naire_id = json.loads(request.POST.get('naire_id'))
+        del_question(q_list, naire_id)
+        for que in q_list:
+
+            pid = que.get('pid')
+            types = que.get('type')
+            options = que.get('options')
+            title = que.get('title')
+            if not pid:
+                if types == '2':
+                    quest_obj = models.Question.objects.create(caption=title, tp=int(types), naire_id=naire_id)
+                    for op in options:
+                        quest_obj.option_set.create(name=op['title'], score=op['val'])
+                else:
+                    models.Question.objects.create(caption=title, tp=int(types), naire_id=naire_id)
+            else:
+                if types == '2':
+                    del_options(que['options'],que['pid'],que)
+                else:
+                    option_obj=models.Option.objects.filter(qs_id=int(que['pid']))
+                    if not option_obj:
+                        models.Question.objects.filter(id=int(pid)).update(caption=title, tp=int(types))
+                    else:
+                        option_obj.delete()
+                        models.Question.objects.filter(id=int(pid)).update(caption=title, tp=int(types))
+    return HttpResponse('ok')
+
 
 def delquestion(request):
     response_dict = {'del_msg': False}
     if request.is_ajax():
-        qs_id=request.POST.get('qs_id')
+        qs_id = request.POST.get('qs_id')
         models.Questionnaire.objects.filter(id=qs_id).delete()
-        response_dict['del_msg']=True
+        response_dict['del_msg'] = True
 
     return HttpResponse(json.dumps(response_dict))
 
 
 from django import forms
 
-from django.forms import widgets,ValidationError
+from django.forms import widgets
+
 
 class QuestionForm(forms.Form):
-
     tp = forms.CharField(
         initial=1,
         error_messages={
@@ -164,7 +230,7 @@ class QuestionForm(forms.Form):
         widget=widgets.Select(
 
             choices=((1, '打分(1~10)'), (2, '单选'), (3, '建议')),
-            attrs={'class': "form-control",'style':"width: 250px"}),
+            attrs={'class': "form-control", 'style': "width: 250px"}),
     )
 
     caption = forms.CharField(
@@ -172,20 +238,11 @@ class QuestionForm(forms.Form):
             'required': '问题内容不能为空',
         },
         widget=widgets.Textarea(
-            attrs={'class': "form-control",'cols':"5",'rows':"2" ,'style':"width: 600px"}),
+            attrs={'class': "form-control", 'cols': "5", 'rows': "2", 'style': "width: 600px"}),
     )
 
 
-# def question(request,nid):
-#     que_list=models.Question.objects.filter(questionnaire__id=nid)
-#     form = QuestionForm()
-#     return render(request,'que_list.html',{'form':form})
-
-def question(request,nid):
-    que_list=models.Question.objects.filter(naire_id=nid)
-    types={1:'打分',2:'单选',3:'建议'}
-
-    print(que_list)
-    return render(request,'que_list.html',{'que_list':que_list,'types':types})
-
-
+def question(request, nid):
+    que_list = models.Question.objects.filter(naire_id=nid)
+    types = {1: '打分(1~10)', 2: '单选', 3: '建议'}
+    return render(request, 'que_list.html', {'que_list': que_list, 'types': types, 'naire_id': nid})

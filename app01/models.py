@@ -51,6 +51,8 @@ class Questionnaire(models.Model):
     cls = models.ForeignKey(to=ClassList,verbose_name='所调查问卷班级')
     creator = models.ForeignKey(to='UserInfo',verbose_name='创建人')
 
+    count_answer = models.IntegerField(default=0,verbose_name='统计回答问卷的学生数')
+
 
 
     class Meta:

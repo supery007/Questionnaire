@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>问卷调查</title>
+    <style>
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            display: inline-block;
+        }
+    </style>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+
+
+<div class="container">
+    <div class="col-md-offset-2">
+        <h3><b>问卷调查</b></h3>
+        <hr>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for fd in form %}
+                <div>
+                    <p>{{ fd.label }} {{ fd.errors.0 }}</p>
+                    {{ fd }}
+                </div>
+            {% endfor %}
+            <hr>
+            <input type="submit" value="提交" class="btn btn-success">
+        </form>
+    </div>
+</div>
+<script src="/static/bootstrap-3.3.7/js/jquery-3.2.1.js"></script>
+<script src="/static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>

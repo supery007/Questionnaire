@@ -27,6 +27,10 @@ urlpatterns = [
     url(r'^addqs/', views.addquestionnaire),
     url(r'^editqs/', views.editquestion),
     url(r'^delqs/', views.delquestion),
+    # 学生问卷调查页面
+    url(r'^student/score/(\d+)/(\d+)', views.score),
+    url(r'^student_login/$', views.student_login),
+
 
 
     # 滑动验证码

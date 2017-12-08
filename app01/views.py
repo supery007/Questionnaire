@@ -2,9 +2,10 @@ import json
 
 from django.contrib import auth
 from django.shortcuts import render, redirect, HttpResponse
-
+from django.db import transaction
 from app01.blogform import *
 from app01.geetest import GeetestLib
+from django.db.models import F
 
 pc_geetest_id = "b46d1900d0a894591916ea94ea91bd2c"
 pc_geetest_key = "36fc3fe98530eea08dfc6ce76e3d24c4"
@@ -122,7 +123,6 @@ def index(request):
     cls_list = models.ClassList.objects.all()
     questionnaire_list = models.Questionnaire.objects.filter(creator_id=request.session.get('userID'))
     userinfo = models.UserInfo.objects.filter(id=request.session.get('userID')).first()
-    print('userinfo:', userinfo)
 
     return render(request, 'index.html',
                   {'cls_list': cls_list, 'questionnaire_list': questionnaire_list, 'userinfo': userinfo})
@@ -141,10 +141,10 @@ def addquestionnaire(request):
     return HttpResponse(json.dumps(response_dict))
 
 
-def del_question(q_list,naire_id):
-    question_obj=models.Question.objects.filter(naire_id=naire_id)
-    question_obj_list=[]
-    submit_question_list=[]
+def del_question(q_list, naire_id):
+    question_obj = models.Question.objects.filter(naire_id=naire_id)
+    question_obj_list = []
+    submit_question_list = []
     for question in question_obj:
         question_obj_list.append(question.id)
     for q in q_list:
@@ -155,24 +155,28 @@ def del_question(q_list,naire_id):
         if id not in submit_question_list:
             models.Question.objects.filter(id=id).delete()
 
-def del_options(op_list,options_id,que):
-    options_obj=models.Option.objects.filter(qs_id=options_id)
-    options_obj_list=[]
-    submit_options_list=[]
+
+
+
+def del_options(op_list, options_id, que):
+    options_obj = models.Option.objects.filter(qs_id=options_id)
+    options_obj_list = []
+    submit_options_list = []
     for obj in options_obj:
         options_obj_list.append(obj.id)
     for option in op_list:
         if not option['id']:
-            print(que)
-            models.Option.objects.create(name=option['title'],score=option['val'],qs_id=options_id)
-            models.Question.objects.filter(id=int(que['pid'])).update(caption=que['title'], tp=int(que['type']))
+            with transaction.atomic():
+                models.Option.objects.create(name=option['title'], score=option['val'], qs_id=options_id)
+                models.Question.objects.filter(id=int(que['pid'])).update(caption=que['title'], tp=int(que['type']))
         else:
-            models.Question.objects.filter(id=int(que['pid'])).update(caption=que['title'], tp=int(que['type']))
-            submit_options_list.append(int(option['id']))
+            with transaction.atomic():
+                models.Question.objects.filter(id=int(que['pid'])).update(caption=que['title'], tp=int(que['type']))
+                models.Option.objects.filter(id=option['id']).update(name=option['title'],score=option['val'])
+                submit_options_list.append(int(option['id']))
     for op_obj_id in options_obj_list:
         if op_obj_id not in submit_options_list:
             models.Option.objects.filter(id=op_obj_id).delete()
-
 
 
 def editquestion(request):
@@ -195,14 +199,15 @@ def editquestion(request):
                     models.Question.objects.create(caption=title, tp=int(types), naire_id=naire_id)
             else:
                 if types == '2':
-                    del_options(que['options'],que['pid'],que)
+                    del_options(que['options'], que['pid'], que)
                 else:
-                    option_obj=models.Option.objects.filter(qs_id=int(que['pid']))
+                    option_obj = models.Option.objects.filter(qs_id=int(que['pid']))
                     if not option_obj:
                         models.Question.objects.filter(id=int(pid)).update(caption=title, tp=int(types))
                     else:
-                        option_obj.delete()
-                        models.Question.objects.filter(id=int(pid)).update(caption=title, tp=int(types))
+                        with transaction.atomic():
+                            option_obj.delete()
+                            models.Question.objects.filter(id=int(pid)).update(caption=title, tp=int(types))
     return HttpResponse('ok')
 
 
@@ -246,3 +251,83 @@ def question(request, nid):
     que_list = models.Question.objects.filter(naire_id=nid)
     types = {1: '打分(1~10)', 2: '单选', 3: '建议'}
     return render(request, 'que_list.html', {'que_list': que_list, 'types': types, 'naire_id': nid})
+
+
+def student_login(request):
+    obj = models.Student.objects.filter(user='stu05', pwd='stu05').first()
+    request.session['student_info'] = {'id': obj.id, 'user': obj.user}
+    return HttpResponse('登录成功')
+
+from django.core.exceptions import ValidationError
+
+def func(val):
+    if len(val) < 15:
+        raise ValidationError('不能少于15字')
+
+def score(request, class_id, naire_id):
+    student_id = request.session['student_info']['id']
+    student_name = request.session['student_info']['user']
+
+
+    # 1. 当前登录用户是否是要评论的班级的学生
+    st1 = models.Student.objects.filter(id=student_id, cls_id=class_id).count()
+    if not st1:
+        return HttpResponse('不是该班学生，只能评论自己班级的问卷!')
+
+    # 2. 你是否已经提交过当前问卷答案
+    st2 = models.Answer.objects.filter(stu_id=student_id, question__naire_id=naire_id).count()
+    if st2:
+        return HttpResponse('你已经参与过调查，无法再次进行')
+
+    # 3. 展示当前问卷下的所有问题
+    from django.forms import Form
+    from django.forms import fields
+    from django.forms import widgets
+    question_list = models.Question.objects.filter(naire_id=naire_id)
+    field_dict = {}
+    for que in question_list:
+        if que.tp == 1:
+            field_dict['val_%s' % que.id] = fields.ChoiceField(
+                label=que.caption,
+                error_messages={'required': '必填'},
+                widget=widgets.RadioSelect,
+                choices=[(i, i) for i in range(1, 11)]
+            )
+        elif que.tp == 2:
+            field_dict['option_id_%s' % que.id] = fields.ChoiceField(
+                error_messages={
+                    'required': '必选',
+                },
+                label=que.caption,
+                widget=widgets.RadioSelect,
+                choices=models.Option.objects.filter(
+                qs_id=que.id).values_list('id', 'name'))
+        else:
+            from django.core.exceptions import ValidationError
+            field_dict['content_%s' % que.id] = fields.CharField(
+                error_messages={
+                    'required': '必填',
+                },
+                label=que.caption, widget=widgets.Textarea, validators=[func, ])
+
+    MyTestForm = type("MyTestForm", (Form,), field_dict)
+    if request.method == 'GET':
+        form = MyTestForm()
+        return render(request, 'score.html', {'question_list': question_list, 'form': form})
+    else:
+        # 15字验证
+        # 不允许为空
+        form = MyTestForm(request.POST)
+        if form.is_valid():
+            # print(form.cleaned_data)
+            # {'x_2': '3', 'x_9': 'sdfasdfasdfasdfasdfasdfasdf', 'x_10': '13'}
+            objs = []
+            for key,v in form.cleaned_data.items():
+                k,qid = key.rsplit('_',1)
+                answer_dict = {'stu_id':student_id,'question_id':qid,k:v}
+                objs.append(models.Answer(**answer_dict))
+            with transaction.atomic():
+                models.Answer.objects.bulk_create(objs)
+                models.Questionnaire.objects.filter(id=naire_id).update(count_answer=F('count_answer')+1)
+            return HttpResponse('感谢您的参与!!!')
+    return render(request, 'score.html', {'question_list': question_list, 'form': form})

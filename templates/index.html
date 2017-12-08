@@ -71,10 +71,10 @@
                                 <td><input type="checkbox"></td>
                                 <td>{{ questionnaire.title }}</td>
                                 <td>{{ questionnaire.cls.title }}</td>
-                                <td>0/{{ questionnaire.cls.student_set.count }}</td>
+                                <td>{{ questionnaire.count_answer }}/{{ questionnaire.cls.student_set.count }}</td>
                                 <td><a href="/question/{{ questionnaire.id }}/">编辑问卷</a></td>
 {#                                <td><a href="/editqs/">编辑问卷</a></td>#}
-                                <td>/student/evaluate/{{ questionnaire.cls.id }}/{{ questionnaire.id }}</td>
+                                <td><a target="_blank" href="student/score/{{ questionnaire.cls.id }}/{{ questionnaire.id }}">/student/score/{{ questionnaire.cls.id }}/{{ questionnaire.id }}</a></td>
                                 <td><a href="">查看评分</a></td>
                                 <td><button class="btn btn-block btn-info del_qs"  qs_id="{{ questionnaire.id }}">删除</button></td>
                             </tr>
